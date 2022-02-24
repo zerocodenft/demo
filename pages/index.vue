@@ -72,7 +72,6 @@ export default {
 
 				if (this.$wallet.chainId !== +targetChainId) {
 					await this.$wallet.switchNetwork(targetChainId) // will trigger page reload on success
-					return
 				}
 
 				const nftContract = new ethers.Contract(address, abi, this.$wallet.provider)
