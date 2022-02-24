@@ -59,17 +59,17 @@ export default {
 					abi,
 					this.$wallet.provider.getSigner()
 				)
-				const txResponse = await signedContract.mint(this.count)
+				const txResponse = await signedContract.mint()
 
 				console.log({ txResponse })
 
 				txResponse.wait().then(async (res) => {
-					console.log({ res });
-					this.mintedCount = +(await signedContract.totalSupply())
+					console.log({ res })
+					this.$emit('minted', +(await signedContract.totalSupply()))
 					const msg = [
 						this.createToastMessage(
 							txResponse.hash,
-							'Mint transaction confirmed!',
+							'Transaction confirmed!',
 							targetChainId
 						),
 					]
@@ -82,7 +82,7 @@ export default {
 				const msg = [
 					this.createToastMessage(
 						txResponse.hash,
-						'Mint successful!',
+						'Transaction accepted!',
 						targetChainId
 					),
 				]
