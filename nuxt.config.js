@@ -1,12 +1,10 @@
-import fs from 'fs'
-import path from 'path'
+import getSiteMeta from './utils/siteMeta'
 
 const {
 	API_URL,
 	WEBSITE_ID,
 } = process.env
 const siteConfig = require('./siteConfig.json')
-import getSiteMeta from './utils/siteMeta'
 
 const { title, description, url, iconName } = siteConfig
 
@@ -94,23 +92,5 @@ export default {
 	},
 
 	// Build Configuration: https://go.nuxtjs.dev/config-build
-	build: {},
-
-	hooks: {
-		generate: {
-			before(generator, options) {
-				// console.log(generator, options, siteConfig)
-				console.log(generator.nuxt.options.buildDir)
-				const extraFilePath = path.join(
-					generator.nuxt.options.buildDir,
-					'siteConfig.json'
-				)
-
-				const config = {
-					address: '123',
-				}
-				fs.writeFileSync(extraFilePath, JSON.stringify(config))
-			},
-		},
-	},
+	build: {}
 }
