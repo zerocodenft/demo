@@ -1,4 +1,4 @@
-# [Zero Code NFT](https://zerocodenft.com) Nuxt NFT Template
+# [Zero Code NFT](https://zerocodenft.com) Nuxt NFT Demo
 
 ## Build Setup
 
