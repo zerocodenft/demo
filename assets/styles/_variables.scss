@@ -1,0 +1,8 @@
+$theme-gradient: linear-gradient(100.07deg, #DB6F3D -28.71%, #9534DE 36.75%, #5FB9E6 103.59%);
+$footer-height: 106px;
+$header-height: 56px;
+
+:export {
+    headerHeight: $header-height;
+    footerHeigth: $footer-height;
+}

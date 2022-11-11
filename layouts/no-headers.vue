@@ -1,8 +1,6 @@
 <template>
 	<div>
-		<Header />
 		<Nuxt />
-		<Footer />
 		<Web3Modal />
 	</div>
 </template>

@@ -1,121 +1,164 @@
 import Vue from 'vue'
 import { ethers } from 'ethers'
-import MetaMaskOnboarding from '@metamask/onboarding'
+import { WALLET_TYPE } from '@/constants'
 import { getCurrency, CHAINID_CONFIG_MAP } from '@/utils/metamask'
 
-export default ({store}, inject) => {
+export default (ctx, inject) => {
+	const wallet = Vue.observable({
+		account: null,
+		accountCompact: 'Connect Wallet',
+		network: null,
+		balance: null,
+		rawProvider: null,
+		provider: null,
+		web3Modal: null,
+		type: null,
+		name: null,
+		canDisconnect: false,
 
-    const wallet = Vue.observable({
-        account: null,
-        accountCompact: null,
-        network: null,
-        balance: null,
-        provider: null,
+		get hexChainId() {
+			return '0x' + this.network?.chainId?.toString(16)
+		},
+		get networkName() {
+			return this.network?.name
+		},
+		get chainId() {
+			return this.network?.chainId
+		},
+		get isConnected() {
+			return this.account !== null
+		},
 
-        get hexChainId() {
-            return '0x' + this.network?.chainId?.toString(16)
-        },
-        get networkName() {
-            return this.network?.name
-        },
-        get chainId() {
-            return this.network?.chainId
-        },
+		async init(provider) {
+			this.provider = new ethers.providers.Web3Provider(provider, 'any') //https://github.com/ethers-io/ethers.js/issues/866
 
-        async init() {
-            this.provider = new ethers.providers.Web3Provider(window.ethereum) //prefably diff node like Infura, Alchemy or Moralis
-            this.network = await this.provider.getNetwork()
-            const [account] = await this.provider.listAccounts()
+			this.provider.on('accountsChanged', ([newAddress]) => {
+				console.info('accountsChanged', newAddress)
+				this.setAccount(newAddress)
+			})
+			this.provider.on('chainChanged', async (chainId) => {
+				console.info('chainChanged', chainId)
+				await this.init(provider)
+			})
 
-            !!account && this.setAccount(account)
-        },
+			this.network = await this.provider.getNetwork()
+			const [account] = await this.provider.listAccounts()
+			await this.setAccount(account)
+		},
 
-        async setAccount(newAccount) {
-            if(newAccount) {
-                this.account = newAccount
-                this.accountCompact = `${newAccount.substring(0, 4)}...${newAccount.substring(newAccount.length - 4)}`
+		async connect() {
+			if (!this.web3Modal)
+				throw new Error('Web3 modal is not initialized. Please contact support.')
 
-                const balance = (await this.provider.getBalance(newAccount)).toString()
-                this.balance = `${(+ethers.utils.formatEther(balance)).toFixed(3)} ${getCurrency(this.network.chainId)}`
-            }
-            else {
-                this.disconnect()
-            }
-        },
+			let instance = await this.web3Modal.connect()
+			this.rawProvider = instance
+			// console.log(instance)
 
-        async connect() {
-            if(!MetaMaskOnboarding.isMetaMaskInstalled()) {
-                const onboarding = new MetaMaskOnboarding()
-                onboarding.startOnboarding()
-                return
-            }
-        
-            wallet.network = await wallet.provider.getNetwork()
+			this.canDisconnect = typeof instance.disconnect === 'function'
+			this.name = instance.walletMeta?.name
 
-            const [account] = await wallet.provider.send('eth_requestAccounts')
-            console.info('wallet connected', {account})
+			const isMetamask =
+				instance.isMetaMask || instance.walletMeta?.name === 'MetaMask'
+			if (isMetamask) {
+				this.type = WALLET_TYPE.Metamask
+			} else if (instance.fm) {
+				this.type = WALLET_TYPE.Fortmatic
+				this.rawProvider = instance.fm
+				instance = instance.fm.getProvider()
+				console.log('fortmatic', instance)
+			} else {
+				this.type = WALLET_TYPE.Other
+			}
 
-            if(account) {
-                await wallet.setAccount(account)
-            }
-        },
+			await this.init(instance)
+		},
 
-        disconnect() {
-            wallet.account = null
-            wallet.accountCompact = null
-            wallet.balance = null
-        },
+		disconnect() {
+			if (this.canDisconnect) {
+				this.provider.provider.disconnect()
+			}
+			this.web3Modal?.clearCachedProvider()
+			this.account = null
+			this.accountCompact = 'Connect Wallet'
+			this.balance = null
+		},
 
-        async switchNetwork(chainId) {
+		async setAccount(newAccount) {
+			if (newAccount) {
+				this.account = newAccount
+				this.accountCompact = `${newAccount.substring(
+					0,
+					4
+				)}...${newAccount.substring(newAccount.length - 4)}`
+				this.balance = await this.getBalance()
+			} else {
+				this.disconnect()
+			}
+		},
 
-            if(!chainId || this.chainId === chainId || this.hexChainId === chainId) {
-                return
-            }
+		async getBalance() {
+			if (!this.isConnected) return
 
-            const config = CHAINID_CONFIG_MAP[chainId]
+			const balance = (await this.provider.getBalance(this.account)).toString()
+			return `${(+ethers.utils.formatEther(balance)).toFixed(3)} ${getCurrency(
+				this.chainId
+			)}`
+		},
+
+		async switchNetwork(chainId) {
+			console.log('switchNetwork', {
+				networkChainId: this.chainId,
+				targetChainId: chainId,
+			})
+
+			if (!this.type === WALLET_TYPE.Metamask) {
+				// console.log('Selected wallet/account is not supported on this blockchain')
+				throw new Error(
+					"Selected wallet/account doesn't support network switching. Please use Desktop Metamask instead."
+				)
+			}
+
+			if (!chainId || this.chainId === chainId || this.hexChainId === chainId) {
+				return
+			}
+
+			const config = CHAINID_CONFIG_MAP[chainId]
 
 			try {
 				await this.provider.send('wallet_switchEthereumChain', [
 					{ chainId: config.chainId },
 				])
 
-                await this.init()
-
-                // create a small delay to let the wallet reset to new network
-                return new Promise((resolve) => {
-                    setTimeout(() => resolve(), 1000)
-                })
+				// await this.provider.ready
+				// create a small delay to let the wallet reset to new network
+				return new Promise((resolve) => {
+					setTimeout(() => resolve(), 1000)
+				})
 			} catch (err) {
+				console.error('switchNetwork', { err })
+
+				if (err?.message === 'JSON RPC response format is invalid') return
+
 				// This error code indicates that the chain has not been added to MetaMask.
-				if (err.code === 4902) {
-                    await this.provider.send('wallet_addEthereumChain', [config])
-                } else {
-                    throw err
-                }
+				if (
+					err.code === 4902 ||
+					err.message.endsWith(
+						'Try adding the chain using wallet_addEthereumChain first.'
+					)
+				) {
+					await this.provider.send('wallet_addEthereumChain', [config])
+				} else {
+					throw err
+				}
 			}
 		},
 
-        async requestSignature(nonce) {
-            const signer = this.provider.getSigner()
-            const msg = `Hi there from the Zero Code NFT! Sign this unique ID to sign in: ${nonce}`
-            return signer.signMessage(msg)
-        }
-    })
+		async requestSignature(nonce) {
+			const signer = this.provider.getSigner()
+			const msg = `Hi there! Sign this unique ID to sign in: ${nonce}`
+			return signer.signMessage(msg)
+		},
+	})
 
-    if(window.ethereum) {
-    
-        window.ethereum.on('accountsChanged', ([newAddress]) => {
-            console.info('accountsChanged', newAddress)
-            wallet.setAccount(newAddress)
-        })
-    
-        window.ethereum.on('chainChanged', async (chainId) => {
-            console.info('chainChanged', chainId)
-            wallet.init()
-        })
-
-        wallet.init()
-    }
-
-    inject('wallet', wallet)
+	inject('wallet', wallet)
 }
