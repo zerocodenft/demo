@@ -11,6 +11,7 @@
     "prod": "SET NODE_ENV=production && nuxt --dotenv .env.production"
   },
   "dependencies": {
+    "@metamask/onboarding": "^1.0.1",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/sitemap": "^2.4.0",
     "@vue/composition-api": "^1.7.0",
@@ -20,10 +21,12 @@
     "@web3-onboard/ledger": "^2.1.7",
     "@web3-onboard/vue": "^2.1.5",
     "@web3-onboard/walletconnect": "^2.0.8",
+    "@wert-io/widget-initializer": "^2.0.3",
     "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.22.0",
     "core-js": "^3.24.1",
     "dayjs": "^1.11.4",
+    "dotenv": "^9.0.2",
     "ethers": "^5.6.9",
     "fortmatic": "^2.4.0",
     "merkletreejs": "^0.2.32",
@@ -33,19 +36,17 @@
     "vue-social-sharing": "^3.0.9",
     "vue-template-compiler": "2.6.14",
     "web3": "^1.7.5",
-    "web3modal-vue": "^1.0.5",
-    "@metamask/onboarding": "^1.0.1",
-    "dotenv": "^9.0.2"
+    "web3modal-vue": "^1.0.5"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "chai": "^4.3.4",
-    "ethereum-waffle": "^3.4.0",
-    "hardhat": "^2.6.8",
     "@nuxtjs/style-resources": "^1.2.1",
     "@openzeppelin/contracts": "^4.7.2",
+    "chai": "^4.3.4",
     "eslint-config-prettier": "^8.5.0",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.6.8",
     "prettier": "^2.7.1",
     "sass": "^1.54.3",
     "sass-loader": "^10.3.1"

@@ -15,7 +15,7 @@
 	"iconURL": null,
 	"faviconURL": null,
 	"isCounterHidden": false,
-	"mintBtnVersion": "V3",
+	"mintBtnVersion": "MintButtonWithWert",
 	"mintCountSelectorType": 0,
 	"configs": {
 		"widgetBot": {

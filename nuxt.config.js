@@ -7,6 +7,9 @@ const {
 	FORTMATIC_KEY,
 	GTAG_DEBUG,
 	OPENSEA_API_KEY,
+	WERT_LOGIN,
+	WERT_PASSWORD,
+	WERT_PARTNER_ID,
 } = process.env
 
 const siteConfig = require('./siteConfig.json')
@@ -40,6 +43,9 @@ export default {
 		FORTMATIC_KEY,
 		GTAG_DEBUG,
 		OPENSEA_API_KEY,
+		WERT_LOGIN,
+		WERT_PASSWORD,
+		WERT_PARTNER_ID,
 	},
 
 	// Global page headers: https://go.nuxtjs.dev/config-head
@@ -89,7 +95,6 @@ export default {
 	// Auto import components: https://go.nuxtjs.dev/config-components
 	components: ['@/components', '@/components/general'],
 
-
 	// Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
 	buildModules: [],
 
@@ -110,7 +115,7 @@ export default {
 	bootstrapVue: {
 		icons: false,
 	},
-	
+
 	styleResources: {
 		scss: ['./assets/styles/_variables.scss', './assets/styles/_defaults.scss'],
 	},
