@@ -1,0 +1,80 @@
+@import './variables';
+
+@font-face {
+    font-family: 'Inter var';
+    src: url('../fonts/Inter-Regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Satoshi';
+    src: url('../fonts/Satoshi.ttf') format('truetype');
+}
+
+html, body {
+	height: 100%;
+	background-color: var(--pageBackground);
+	font-family: 'Inter var', 'Satoshi', sans-serif;
+}
+
+:root {
+	--account-center-position-top: 18px;
+}
+
+.required:after {
+  content: " *";
+  color: red;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.form-control {
+  &.is-invalid {
+    border: 1px solid #dc3545;
+  }
+}
+
+.zc-container {
+  min-height: calc(100vh - $header-height - $footer-height);
+  &:first-child { 
+    height: inherit;
+  }
+}
+
+.bg-gradient-primary {
+  background: $theme-gradient !important;
+}
+
+.text-zerocodenft {
+    background: $theme-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.zerocode-link {
+	&:hover {
+		background: linear-gradient(
+			100.07deg,
+			#db6f3d -28.71%,
+			#9534de 36.75%,
+			#5fb9e6 103.59%
+		);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+}
+
+.jumbo {
+	max-width: 60%;
+	overflow-wrap: break-word;
+}
+
+@media (max-width: 600px) {
+	.jumbo {
+		max-width: 100%;
+	}
+	.display-3 {
+		font-size: 3rem;
+	}
+}

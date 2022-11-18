@@ -1,18 +1,17 @@
 import siteConfigLocal from '@/siteConfig.json'
 
-export default async ({env, $cloudFns, $axios}, inject) => {
+export default async ({ route, }, inject) => {
+	let siteConfig
+	const siteId = route.query['siteId'] || localStorage.getItem('siteId')
+	if (siteId) {
+		localStorage.setItem('siteId', siteId)
+	}
 
-    // let siteConfig = {}
-    
-    // try {
-    //     // const { data: websiteConfig } = await $cloudFns.get('/siteconfig', { params: { websiteId: env.WEBSITE_ID }} )
-    //     const { data: websiteConfig } = await $axios.get(`/websites/${env.WEBSITE_ID}/config`)
-    //     // console.log({websiteConfig})
-    //     siteConfig = websiteConfig
-    // } catch (err) {
-    //     console.log(err)
-    //     siteConfig = siteConfigLocal
-    // }
+		siteConfig = {
+			...siteConfigLocal,
+			configs: JSON.stringify(siteConfigLocal.configs),
+			stylesConfig: JSON.stringify(siteConfigLocal.stylesConfig),
+		}
 
-    inject('siteConfig', siteConfigLocal)
+	inject('siteConfig', siteConfig)
 }
